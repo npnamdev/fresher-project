@@ -1,31 +1,24 @@
 import { Button, Form, Input, Divider, message, notification } from 'antd';
 
-import { callLogin } from '../../../services/api';
+import { callRegister } from '../../../services/api';
 import { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
-import { doLoginAction } from '../../redux/account/accountSlice';
 
-
-const LoginPage = (props) => {
-
+const RegisterPage = () => {
     const navigate = useNavigate();
-    const [isLogin, setIsLogin] = useState(false);
-
-    const dispatch = useDispatch;
+    const [isSubmit, setIsSubmit] = useState(false);
 
     const onFinish = async (values) => {
-        const { username, password } = values;
-        setIsLogin(true);
+        const { fullName, email, password, phone } = values;
+        setIsSubmit(true);
 
-        const res = await callLogin(username, password);
-        setIsLogin(false);
+        const res = await callRegister(fullName, email, password, phone);
 
-        if (res?.data) {
-            localStorage.setItem('access_token', res.data.access_token)
-            dispatch(doLoginAction(res.data.user));
-            message.success('Đăng nhập thành công!');
-            navigate('/');
+        setIsSubmit(false);
+
+        if (res?.data?._id) {
+            message.success('Đăng ký thành công!');
+            navigate('/login');
         } else {
             notification.error({
                 message: "Có lỗi sảy ra",
@@ -36,7 +29,7 @@ const LoginPage = (props) => {
 
     return (
         <div className='register-container'>
-            <h2 style={{ textAlign: 'center' }}>Đăng Nhập</h2>
+            <h2 style={{ textAlign: 'center' }}>Đăng ký tài khoản</h2>
             <Divider />
             <Form
                 name="control-hooks"
@@ -53,8 +46,17 @@ const LoginPage = (props) => {
                 }}
             >
                 <Form.Item
+                    label="FullName"
+                    name="fullName"
+                    rules={[{ required: true, message: "nhập vào đê:))" }]}
+                >
+                    <Input />
+                </Form.Item>
+
+
+                <Form.Item
                     label="Email"
-                    name="username"
+                    name="email"
                     rules={[{ required: true, message: "nhập vào đê:))" }]}
                 >
                     <Input />
@@ -70,21 +72,30 @@ const LoginPage = (props) => {
                 </Form.Item>
 
                 <Form.Item
+                    label="Phone"
+                    name="phone"
+                    rules={[{ required: true, message: "nhập vào đê:))" }]}
+                >
+                    <Input />
+                </Form.Item>
+
+
+                <Form.Item
                     wrapperCol={{
                         offset: 8,
                         span: 16,
                     }}
                 >
-                    <Button type="primary" htmlType="submit" style={{ margin: '0 auto' }} loading={isLogin}>
-                        Đăng nhập
+                    <Button type="primary" htmlType="submit" style={{ margin: '0 auto' }} loading={isSubmit}>
+                        Đăng ký
                     </Button>
-                    <br /><br />
-                    <Link to='/register'>Đăng ký </Link>
-                </Form.Item>
 
+                    <br /><br />
+                    <Link to='/login'>Đăng nhập </Link>
+                </Form.Item>
             </Form>
         </div >
     )
 }
 
-export default LoginPage;
+export default RegisterPage;
